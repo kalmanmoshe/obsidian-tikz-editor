@@ -1,0 +1,9 @@
+{
+  "id": "tikz-editor",
+  "name": "TikZ Editor",
+  "version": "0.1.0",
+  "minAppVersion": "1.7.2",
+  "description": "A placeholder view for future native TikZ editing.",
+  "author": "kalmanmoshe",
+  "isDesktopOnly": true
+}

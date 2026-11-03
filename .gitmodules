@@ -1,0 +1,4 @@
+[submodule "vendor/tikz-editor"]
+	path = vendor/tikz-editor
+	url = https://github.com/kalmanmoshe/tikz-editor.git
+	branch = obsidian-integration
