@@ -1,82 +1,114 @@
-# TikZ Editor for Obsidian — development foundation
+# Compact TikZ Editor for Obsidian
 
-Native editor integration has **not been implemented**. The plugin registers one
-command, **Open TikZ editor**, which opens a placeholder ItemView.
+A small native Obsidian pane built from the actual `tikz-editor` code in
+`vendor/tikz-editor`. It mounts upstream `CanvasPanel` and `SourcePanel`, uses
+the upstream Zustand store and reducers, runs `computeSnapshot`, and renders
+with the upstream parser, semantic evaluator, SVG engine and embedded TeX fonts.
+There is no separate node/edge model, simulated preview, iframe or hosted editor.
 
-## Repositories and attribution
+## Use
 
-- This fresh, uncommitted plugin repository contains Obsidian-specific code in
-  `src/`. It retains the official [Obsidian sample plugin](https://github.com/obsidianmd/obsidian-sample-plugin)
-  tooling and LICENSE (template commit `07ceb81d1fb3384af611ebf665a1ec42a7e5926d`).
-- `vendor/tikz-editor` is a separate Git submodule of
-  [kalmanmoshe/tikz-editor](https://github.com/kalmanmoshe/tikz-editor), forked from
-  [DominikPeters/tikz-editor](https://github.com/DominikPeters/tikz-editor).
-  Its history, licenses and attribution remain intact. Future editor embedding
-  changes belong there on `obsidian-integration`; its source is currently unchanged.
-  The plugin does not import or bundle the editor. No editor dependencies are needed.
+Enable or reload **TikZ Editor** under **Settings → Community plugins**, then
+run **TikZ Editor: Open diagram editor**.
 
-## Development (PowerShell)
+- Choose Select, Node, Arrow, Rectangle or Circle in the small toolbar.
+- Drag a node border/body to move it. Upstream handles resize, rotation and text editing.
+- Use **Edit source** for the real upstream CodeMirror editor. Source edits render
+  on the canvas; visual edits modify the original TikZ through upstream edit actions.
+- Undo/redo uses drawing history for the canvas and CodeMirror history for source.
+- **Save as note** creates a new Markdown note at vault root containing the current
+  TikZ in a fenced block. Ctrl+S in the pane invokes the same save.
+- The last source is saved as plugin draft data and restored on reopening.
 
-After you commit and publish this plugin repository, clone it using your actual URL:
+One editor pane is supported because upstream state and the active platform are
+currently module singletons. No full docking layout, document tab bar, assistant,
+presentation interface, account controls or application menu is mounted.
+
+## Code map
+
+| File | Purpose |
+| --- | --- |
+| `src/main.ts` | Plugin commands and draft persistence |
+| `src/view.ts` | Native ItemView, direct editor import, note export and theme |
+| `src/editor/compact.tsx` and `src/editor/compact.css` | Plugin-owned compact layout, toolbar, example source, clipboard adapter and save controls |
+| `vendor/tikz-editor/packages/app/src/embedding/` | Generic session/render hooks and host boundaries, shared editor component exports |
+| `vendor/tikz-editor/packages/app/src/ui/dock-layout-handle.ts` | Shared layout registry decoupled from the full docking UI |
+| `esbuild.config.mjs` and `build-config.mjs` | Bundle upstream components and scope their stylesheet to the pane |
+
+The plugin owns `mountCompactEditor` in `src/editor/compact.tsx`. It imports generic
+building blocks from `@tikz-editor/app/embedding`. The fork contains no compact
+layout or Obsidian platform adapter. See `ARCHITECTURE.md` for the ownership boundary.
+
+## Build and install (PowerShell)
+
+One-time setup: copy `install.local.example.json` to `install.local.json` at the
+project root and set `vaultPath` to your vault folder. `install.local.json` is
+ignored by Git; the committed installer contains no personal vault path. Relative
+paths are resolved from the project root.
+
+From the project folder, build and replace the plugin in your configured vault:
 
 ```powershell
-git clone --recurse-submodules <your-plugin-repository-url>
-cd obsidian-tikz-editor
-git -C vendor/tikz-editor switch obsidian-integration
-git -C vendor/tikz-editor remote add upstream https://github.com/DominikPeters/tikz-editor.git
-npm install
-npm run typecheck
-npm run lint
-npm run build
-npm run dev # watch; stop with Ctrl+C
+npm.cmd run build:install
 ```
 
-For an existing clone, run `git submodule update --init --recursive` first.
-Git clones pin the exact submodule commit; branch tracking is configured for
-future deliberate updates. If the branch already exists, switch to it normally.
-The `upstream` remote is configured in this checkout, but Git does not copy it to new clones.
+This builds all runtime code into `main.js` and all editor CSS into `styles.css`,
+backs up the previous installed runtime, and copies those files with the manifest
+and license notices into the vault. It removes obsolete `editor.js` and
+`editor.css` from the installation. Plugin data and other vault files are retained.
+Reload **TikZ Editor** in Obsidian after replacing the files.
 
-Build, then copy only the runtime files to the school vault:
+Override the local configuration for one installation:
 
 ```powershell
-npm run build
-powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
-# Or choose another existing vault:
-powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 -VaultPath 'D:\MyVault'
+npm.cmd run build:install -- -VaultPath "D:\MyVault"
 ```
 
-The script copies only `main.js`, `manifest.json`, and `styles.css` to
-`<vault>/.obsidian/plugins/tikz-editor`. Existing settings and other files are
-preserved; those three runtime files are replaced on subsequent installs.
-Source, the submodule, and node_modules stay outside the vault.
-The `tikz-editor-prototype` installation and vault plugin configuration are untouched.
-Enable **TikZ Editor** in Obsidian's **Settings → Community plugins**, then run
-**TikZ Editor: Open TikZ editor** from the command palette. Installation does not
-enable the plugin or restart Obsidian. If already loaded, toggle this plugin to reload it.
+For a fresh checkout, install dependencies first:
 
-## Future editor work and upstream updates
+```powershell
+git submodule update --init --recursive
+npm.cmd ci
+npm.cmd ci --ignore-scripts --prefix vendor/tikz-editor
+npm.cmd run build:install
+```
 
-Commit editor changes in the submodule first, then record its pointer in the parent:
+`npm.cmd run build` builds without installing. `npm.cmd run lint` and
+
+For upstream production lint on Windows, use:
 
 ```powershell
 cd vendor/tikz-editor
-git switch obsidian-integration
-# Edit and review editor files here.
-git add <changed-editor-files>
-git commit -m "Describe editor change"
-git push origin obsidian-integration
-cd ../..
-git add vendor/tikz-editor
-git commit -m "Update editor submodule"
+node node_modules/eslint/bin/eslint.js "packages/*/src/**/*.{ts,tsx}" "apps/*/src/**/*.{ts,tsx}" --max-warnings=0
 ```
 
-To bring upstream updates into the integration branch, start with a clean editor
-worktree, run `git fetch upstream`, then `git merge upstream/master` inside the
-submodule. Resolve conflicts, verify your changes, push the integration branch,
-and review/commit the updated submodule pointer in the parent repository.
-Do not use a hard reset to discard integration work.
+`npm run dev` watches the plugin and imported upstream editor source. Both build
+outputs are refreshed together; run `npm run build:install` to copy a production
+build into the vault.
 
-Initial editor commit: `581928f1c939d8f09ae7b8bb36f1e4456aebdd2d`.
-Only `.gitmodules` and the submodule pointer were staged during setup. No parent
-commits or hosted plugin repository were created. Commit and publication are yours
-to perform after review; the commands above describe future work.
+## Scope
+
+Desktop/main-window integration. Existing note-block editing, inline Markdown
+rendering, referenced external assets and multiple simultaneous editor panes are
+future work. The internal renderer supports the upstream TikZ subset; it is not
+full external TeX compilation. PDF assets and compiled previews are explicitly
+unavailable. Documentation hover downloads are disabled in the compact host.
+Upstream math text rendering and source editing remain intact.
+
+The previous standalone diagram draft, if present, is retained under
+`legacyDiagram` in plugin data. It is not used as the editor's document model.
+
+## Provenance
+
+The plugin retains the official `obsidianmd/obsidian-sample-plugin` tooling and
+0-BSD LICENSE. The separate `vendor/tikz-editor` submodule is
+`kalmanmoshe/tikz-editor`, forked from `DominikPeters/tikz-editor`, with upstream
+history and MIT attribution retained. Integration changes are local and uncommitted.
+Commit changes in the submodule before updating the parent submodule pointer.
+Bundled third-party and font licenses are included in `THIRD-PARTY-NOTICES.txt`.
+
+The normal plugin build bundles upstream source and uses the committed parsers;
+it does not run lezer-generator. Generated Lezer parser files are build outputs. Do not hand-edit them. This
+integration changes neither grammars nor generated parsers. If a future editing
+feature requires a grammar change, edit its grammar and regenerate deliberately;
+avoid committing line-ending-only regeneration churn.

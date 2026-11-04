@@ -8,6 +8,11 @@ export default defineConfig(
 		'vendor/**',
 		'dist',
 		'esbuild.config.mjs',
+		'build-config.mjs',
+		'licenses.mjs',
+		'build/**',
+		'tests/*.mjs',
+		'runtime-backups/**',
 		'version-bump.mjs',
 		'versions.json',
 		'main.js',
@@ -31,4 +36,3 @@ export default defineConfig(
 	},
 	...obsidianmd.configs.recommended,
 );
-

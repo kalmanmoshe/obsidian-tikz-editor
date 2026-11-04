@@ -1,19 +1,108 @@
 {
-	"compilerOptions": {
-		"inlineSourceMap": true,
-		"inlineSources": true,
-		"module": "ESNext",
-		"target": "ES2021",
-		"strict": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		"noUncheckedIndexedAccess": true,
-		"moduleResolution": "node",
-		"isolatedModules": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"allowSyntheticDefaultImports": true,
-		"lib": ["ES2021", "DOM"]
-	},
-	"include": ["src/**/*.ts"]
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "jsx": "react-jsx",
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": [
+      "node"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@tikz-editor/app": [
+        "vendor/tikz-editor/packages/app/src/index.ts"
+      ],
+      "@tikz-editor/app/app-menu": [
+        "vendor/tikz-editor/packages/app/src/app-menu/index.ts"
+      ],
+      "@tikz-editor/app/landing-assets": [
+        "vendor/tikz-editor/packages/app/src/landing-assets.ts"
+      ],
+      "@tikz-editor/app/linked-file-sync": [
+        "vendor/tikz-editor/packages/app/src/linked-file-sync.ts"
+      ],
+      "@tikz-editor/app/platform/current": [
+        "vendor/tikz-editor/packages/app/src/platform/current.ts"
+      ],
+      "@tikz-editor/app/platform/types": [
+        "vendor/tikz-editor/packages/app/src/platform/types.ts"
+      ],
+      "@tikz-editor/app/store/types": [
+        "vendor/tikz-editor/packages/app/src/store/types.ts"
+      ],
+      "@tikz-editor/app/workspace": [
+        "vendor/tikz-editor/packages/app/src/ui/workspace-apply.ts"
+      ],
+      "@tikz-editor/core": [
+        "vendor/tikz-editor/packages/core/src/index.ts"
+      ],
+      "@tikz-editor/core/*": [
+        "vendor/tikz-editor/packages/core/src/*"
+      ],
+      "@tikz-editor/tex-fuzz": [
+        "vendor/tikz-editor/packages/tex-fuzz/src/index.ts"
+      ],
+      "@tikz-editor/tex-fuzz/*": [
+        "vendor/tikz-editor/packages/tex-fuzz/src/*"
+      ],
+      "@tikz-editor/lang-tikz": [
+        "vendor/tikz-editor/packages/lang-tikz/src/index.ts"
+      ],
+      "@tikz-editor/lezer-tex": [
+        "vendor/tikz-editor/packages/lezer-tex/src/index.ts"
+      ],
+      "@tikz-editor/lezer-tex/grammar/tex-parser": [
+        "vendor/tikz-editor/packages/lezer-tex/src/grammar/tex-parser.ts"
+      ],
+      "@tikz-editor/lezer-tex/grammar/tex-parser.terms": [
+        "vendor/tikz-editor/packages/lezer-tex/src/grammar/tex-parser.terms.ts"
+      ],
+      "@tikz-editor/lezer-tikz": [
+        "vendor/tikz-editor/packages/lezer-tikz/src/index.ts"
+      ],
+      "@tikz-editor/lezer-tikz/grammar/tikz-parser": [
+        "vendor/tikz-editor/packages/lezer-tikz/src/grammar/tikz-parser.ts"
+      ],
+      "@tikz-editor/lezer-tikz/grammar/tikz-parser.terms": [
+        "vendor/tikz-editor/packages/lezer-tikz/src/grammar/tikz-parser.terms.ts"
+      ],
+      "@tikz-editor/app/embedding": [
+        "vendor/tikz-editor/packages/app/src/embedding/index.ts"
+      ],
+      "react": [
+        "vendor/tikz-editor/node_modules/@types/react/index.d.ts"
+      ],
+      "react/*": [
+        "vendor/tikz-editor/node_modules/@types/react/*"
+      ],
+      "react-dom": [
+        "vendor/tikz-editor/node_modules/@types/react-dom/index.d.ts"
+      ],
+      "react-dom/*": [
+        "vendor/tikz-editor/node_modules/@types/react-dom/*"
+      ],
+      "@codemirror/*": [
+        "vendor/tikz-editor/node_modules/@codemirror/*"
+      ]
+    },
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "vendor/tikz-editor/packages/app/src/types/*.d.ts",
+    "vendor/tikz-editor/apps/web/src/vite-env.d.ts"
+  ]
 }

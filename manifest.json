@@ -3,7 +3,7 @@
   "name": "TikZ Editor",
   "version": "0.1.0",
   "minAppVersion": "1.7.2",
-  "description": "A placeholder view for future native TikZ editing.",
+  "description": "Compact native TikZ editing using the upstream TikZ Editor canvas and engine.",
   "author": "kalmanmoshe",
   "isDesktopOnly": true
 }
