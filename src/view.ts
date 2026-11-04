@@ -1,10 +1,10 @@
 import { ItemView, Notice, type WorkspaceLeaf } from 'obsidian';
 import { mountCompactEditor, type CompactEditorHandle } from './editor/compact';
+import './view.css';
 
 export const VIEW_TYPE_TIKZ_EDITOR = 'tikz-editor-view';
 export class TikzEditorView extends ItemView {
 	private editor: CompactEditorHandle | null = null;
-	private resizeObserver: ResizeObserver | null = null;
 
 	constructor(
 		leaf: WorkspaceLeaf, 
@@ -23,14 +23,6 @@ export class TikzEditorView extends ItemView {
 		this.contentEl.addClass('tikz-editor-pane');
 		try {
 			const host = this.contentEl.createDiv({ cls: 'tikz-editor-root' });
-			const resize = (): void => {
-				const pane = this.containerEl.getBoundingClientRect();
-				const content = this.contentEl.getBoundingClientRect();
-				host.style.height = `${Math.max(0, pane.bottom - content.top)}px`;
-			};
-			this.resizeObserver = new ResizeObserver(resize);
-			this.resizeObserver.observe(this.containerEl);
-			resize();
 			this.editor = mountCompactEditor(host, {
 				...(this.source === undefined ? {} : { source: this.source }), dark: this.contentEl.ownerDocument.body.hasClass('theme-dark'),
 				onChange: source => { this.source = source; this.persist(source); },
@@ -58,7 +50,6 @@ export class TikzEditorView extends ItemView {
 	}
 
 	disposeEditor(): void {
-		this.resizeObserver?.disconnect(); this.resizeObserver = null;
 		this.editor?.dispose(); this.editor = null;
 		this.contentEl.empty();
 	}

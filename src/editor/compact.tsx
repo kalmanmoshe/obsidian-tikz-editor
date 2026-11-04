@@ -22,6 +22,7 @@ export interface CompactEditorOptions {
   onSave: (source: string) => Promise<void>;
   onError: (message: string) => void;
 }
+
 export interface CompactEditorHandle {
   getSource(): string;
   setTheme(dark: boolean): void;

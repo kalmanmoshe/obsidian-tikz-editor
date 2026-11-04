@@ -28,7 +28,7 @@ $VaultPath = [System.IO.Path]::GetFullPath($VaultPath)
 if (-not (Test-Path -LiteralPath (Join-Path $VaultPath '.obsidian') -PathType Container)) {
     throw "Obsidian vault configuration not found: $VaultPath"
 }
-$runtimeFiles = @('main.js', 'manifest.json', 'styles.css', 'THIRD-PARTY-NOTICES.txt')
+$runtimeFiles = @('main.js', 'manifest.json', 'styles.css')
 foreach ($name in $runtimeFiles) {
     if (-not (Test-Path -LiteralPath (Join-Path $projectRoot $name) -PathType Leaf)) {
         throw "Missing $name. Run npm run build first."
@@ -56,7 +56,7 @@ if (Test-Path -LiteralPath $destination) {
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
 }
 # Copy main.js last so development reloaders see a complete installation.
-foreach ($name in @('manifest.json', 'styles.css', 'THIRD-PARTY-NOTICES.txt', 'main.js')) {
+foreach ($name in @('manifest.json', 'styles.css', 'main.js')) {
     Copy-Item -LiteralPath (Join-Path $projectRoot $name) -Destination (Join-Path $destination $name) -Force
 }
 foreach ($name in @('editor.js', 'editor.css')) {

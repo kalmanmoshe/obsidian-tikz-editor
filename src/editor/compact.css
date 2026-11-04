@@ -1,15 +1,20 @@
-:host { display: block; height: 100%; min-height: 0; color: var(--text); font: 13px var(--font-ui); }
-.compact-shell { height: 100%; min-height: 0; display: flex; flex-direction: column; background: var(--bg-pane); --app-ui-scale: 1; --app-ui-font-size: 13px; }
+:host { position: absolute; inset: 0; display: block; width: 100%; height: 100%; min-width: 0; min-height: 0; color: var(--text); font: 13px var(--font-ui); }
+.compact-shell { width: 100%; height: 100%; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow-x: hidden; overflow-y: auto; background: var(--bg-pane); --app-ui-scale: 1; --app-ui-font-size: 13px; }
 .compact-shell * { box-sizing: border-box; }
-.compact-toolbar { display: flex; flex-shrink: 0; flex-wrap: wrap; gap: 4px; padding: 8px; border-bottom: 1px solid var(--border); background: var(--bg-header); }
+/* The toolbar is deliberately scrollable when a pane cannot fit every tool. */
+.compact-toolbar { display: flex; flex: 0 0 auto; flex-wrap: nowrap; min-width: 0; max-width: 100%; gap: 4px; padding: 8px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; border-bottom: 1px solid var(--border); background: var(--bg-header); }
+.compact-toolbar > * { flex-shrink: 0; }
 .compact-shell button { font: inherit; color: var(--text); background: var(--control-bg); border: 1px solid var(--border); border-radius: 5px; padding: 5px 8px; cursor: pointer; }
 .compact-shell button:hover { background: var(--btn-hover-bg); }
 .compact-shell button:focus-visible { outline: 2px solid var(--control-accent); outline-offset: 2px; }
 .compact-shell button[aria-pressed="true"], .compact-shell .compact-save { background: var(--control-accent); color: white; }
 .compact-shell button:disabled { opacity: .5; cursor: default; }
 .compact-separator { width: 1px; background: var(--border); margin: 3px; }
-.compact-canvas { flex: 1 1 240px; min-height: 100px; overflow: hidden; }
-.compact-footer { display: flex; flex-shrink: 0; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px; border-top: 1px solid var(--border); }
-.compact-footer span { flex: 1; font-size: 12px; color: var(--text-muted); }
-.compact-source { height: 200px; flex: 0 1 200px; min-height: 80px; overflow: hidden; border-top: 1px solid var(--border); }
-.compact-error { padding: 8px; color: var(--color-error); overflow-wrap: anywhere; }
+.compact-canvas { flex: 2 1 0; min-width: 0; min-height: 80px; overflow: hidden; }
+.compact-footer { display: grid; flex: 0 0 auto; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-width: 0; gap: 8px; padding: 8px; border-top: 1px solid var(--border); }
+.compact-footer button { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.compact-footer > button:first-child { grid-column: 1; grid-row: 1; justify-self: start; }
+.compact-footer > .compact-save { grid-column: 2; grid-row: 1; justify-self: end; }
+.compact-footer span { grid-column: 1 / -1; min-width: 0; overflow-wrap: anywhere; font-size: 12px; color: var(--text-muted); }
+.compact-source { flex: 1 1 0; min-width: 0; min-height: 80px; max-height: 45%; overflow: hidden; border-top: 1px solid var(--border); }
+.compact-error { flex: 0 0 auto; min-width: 0; padding: 8px; color: var(--color-error); overflow-wrap: anywhere; }

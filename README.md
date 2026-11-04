@@ -105,7 +105,6 @@ The plugin retains the official `obsidianmd/obsidian-sample-plugin` tooling and
 `kalmanmoshe/tikz-editor`, forked from `DominikPeters/tikz-editor`, with upstream
 history and MIT attribution retained. Integration changes are local and uncommitted.
 Commit changes in the submodule before updating the parent submodule pointer.
-Bundled third-party and font licenses are included in `THIRD-PARTY-NOTICES.txt`.
 
 The normal plugin build bundles upstream source and uses the committed parsers;
 it does not run lezer-generator. Generated Lezer parser files are build outputs. Do not hand-edit them. This
