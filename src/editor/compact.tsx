@@ -116,10 +116,12 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 }
 
 export function mountCompactEditor(host: HTMLElement, options: CompactEditorOptions): CompactEditorHandle {
+  const overlays = host.ownerDocument.createElement('div');
+  overlays.className = 'tikz-editor-root tikz-editor-overlays';
   const memory = new Map<string, string>();
   const session = createEditorSession({
     source: options.source ?? DEFAULT_COMPACT_SOURCE,
-    host: { root: host, documentationEnabled: false },
+    host: { root: host, overlayRoot: overlays, documentationEnabled: false },
     platform: {
       id: 'obsidian-compact',
       persistence: {
@@ -132,8 +134,12 @@ export function mountCompactEditor(host: HTMLElement, options: CompactEditorOpti
       },
     },
   });
+  host.ownerDocument.body.appendChild(overlays);
   if (useEditorStore.getState().showRulers) useEditorStore.getState().dispatch({ type: 'TOGGLE_CANVAS_AID', aid: 'rulers' });
-  const setTheme = (dark: boolean) => { host.dataset.colorScheme = dark ? 'dark' : 'light'; };
+  const setTheme = (dark: boolean) => {
+    host.dataset.colorScheme = dark ? 'dark' : 'light';
+    overlays.dataset.colorScheme = host.dataset.colorScheme;
+  };
   setTheme(options.dark);
   const root = createRoot(host);
   flushSync(() => { root.render(<CompactEditor host={host} options={options} />); });
@@ -142,6 +148,6 @@ export function mountCompactEditor(host: HTMLElement, options: CompactEditorOpti
     if (disposed) return;
     disposed = true;
     options.onChange(useEditorStore.getState().source);
-    root.unmount(); session.dispose();
+    try { root.unmount(); session.dispose(); } finally { overlays.remove(); }
   } };
 }
