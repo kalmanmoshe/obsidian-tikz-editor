@@ -21,7 +21,7 @@ const context = await esbuild.context({
           if (selector.startsWith('.tikz-editor-pane')) return selector;
           const scoped = selector.replace(/:root|:host|\bhtml\b|\bbody\b|#root/g, '.tikz-editor-root');
           if (/^\[data-(color-scheme|canvas-invert|desktop-os)/.test(scoped)) return `.tikz-editor-root${scoped}`;
-          return scoped.startsWith('.tikz-editor-root') ? scoped : `.tikz-editor-root ${scoped}`;
+          return scoped.startsWith('.tikz-editor-root') ? scoped : `.tikz-editor-root.tikz-editor-root ${scoped}`;
         });
       });
       await writeFile('styles.css', css.toString());

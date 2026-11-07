@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import {
-  CanvasPanel, SourcePanel, useEditorStore, createEditorSession, useEditorComputation,
+  CanvasPanel, SourcePanel, InspectorPanel, useEditorStore, createEditorSession, useEditorComputation,
   deleteSelection, editorActiveElement, editorOwnsEvent, sourceEditorHistoryFor,
   type ToolMode, type SourceEditorHistory,
 } from '@tikz-editor/app/embedding';
+import './host-reset.css';
 import '@tikz-editor/app/embedding/styles.css';
 import './compact.css';
+import { EditorIcon, type EditorIconName } from './icons';
 
 export const DEFAULT_COMPACT_SOURCE = String.raw`\begin{tikzpicture}
   \node[draw, rounded corners, minimum width=1.2cm, minimum height=0.8cm] (A) at (0,0) {$A$};
@@ -36,6 +38,7 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
   const selected = useEditorStore(s => s.selectedElementIds.size);
   const dispatch = useEditorStore(s => s.dispatch);
   const [showSource, setShowSource] = useState(false);
+  const [showInspector, setShowInspector] = useState(true);
   const [saving, setSaving] = useState(false);
   const error = useEditorComputation(options.onError);
   const lastSourceEditor = useRef<SourceEditorHistory | null>(null);
@@ -83,13 +86,13 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
     host.addEventListener('keydown', onKey);
     return () => { host.removeEventListener('keydown', onKey); };
   });
-  const tools: { label: string; mode: ToolMode }[] = [
-    { label: 'Select', mode: 'select' }, 
-    { label: 'Node', mode: 'addNode' },
-    { label: 'Arrow', mode: 'addArrow' }, 
-    { label: 'Rectangle', mode: 'addRect' },
-    { label: 'Circle', mode: 'addCircle' },
-    { label: 'Free hand', mode: 'addFreehand' },
+  const tools: { label: string; mode: ToolMode; icon: EditorIconName }[] = [
+    { label: 'Select', mode: 'select', icon: 'select' }, 
+    { label: 'Node', mode: 'addNode', icon: 'node' },
+    { label: 'Arrow', mode: 'addArrow', icon: 'arrow' }, 
+    { label: 'Rectangle', mode: 'addRect', icon: 'rectangle' },
+    { label: 'Circle', mode: 'addCircle', icon: 'circle' },
+    { label: 'Free hand', mode: 'addFreehand', icon: 'freehand' },
   ];
   return <div className="compact-shell" onFocusCapture={event => {
     const cm = event.target.closest('.cm-editor');
@@ -97,18 +100,27 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
     else if (!event.target.closest('.compact-toolbar')) lastSourceEditor.current = null;
   }}>
     <div className="compact-toolbar" role="toolbar" aria-label="Drawing tools">
-      {tools.map(tool => <button type="button" key={tool.mode} aria-pressed={mode === tool.mode}
-        onClick={() => { lastSourceEditor.current = null; dispatch({ type: 'SET_TOOL_MODE', mode: tool.mode }); }}>{tool.label}</button>)}
+      <div className="compact-toolstrip">
+      {tools.map(tool => <button type="button" key={tool.mode} aria-label={tool.label} title={tool.label} aria-pressed={mode === tool.mode}
+        onClick={() => { lastSourceEditor.current = null; dispatch({ type: 'SET_TOOL_MODE', mode: tool.mode }); }}><EditorIcon name={tool.icon} /></button>)}
       <span className="compact-separator" />
-      <button type="button" onClick={() => { history(false); }}>Undo</button><button type="button" onClick={() => { history(true); }}>Redo</button>
-      <button type="button" disabled={!selected || snapshot.source !== source} onClick={remove}>Delete</button>
-      <button type="button" onClick={() => { dispatch({ type: 'REQUEST_FIT_TO_CONTENT' }); }}>Fit</button>
+      <button type="button" aria-label="Undo" title="Undo" onClick={() => { history(false); }}><EditorIcon name="undo" /></button><button type="button" aria-label="Redo" title="Redo" onClick={() => { history(true); }}><EditorIcon name="redo" /></button>
+      <button type="button" aria-label="Delete" title="Delete selection" disabled={!selected || snapshot.source !== source} onClick={remove}><EditorIcon name="delete" /></button>
+      <button type="button" aria-label="Fit" title="Fit to content" onClick={() => { dispatch({ type: 'REQUEST_FIT_TO_CONTENT' }); }}><EditorIcon name="fit" /></button>
+      </div>
+      <span className="compact-separator" />
+      <button type="button" aria-label="Inspector" title="Toggle inspector" aria-expanded={showInspector} onClick={() => { setShowInspector(value => !value); }}><EditorIcon name="inspector" /></button>
     </div>
-    <div className="compact-canvas"><CanvasPanel /></div>
+    <div className="compact-workspace">
+      <div className="compact-canvas"><CanvasPanel /></div>
+      {showInspector ? <aside className="compact-inspector" aria-label="Inspector">
+        <div className="compact-panel-heading"><span>Inspector</span><button type="button" aria-label="Close inspector" onClick={() => { setShowInspector(false); }}>&times;</button></div>
+        <div className="compact-inspector-content"><InspectorPanel /></div>
+      </aside> : null}
+    </div>
     <div className="compact-footer">
-      <button type="button" aria-expanded={showSource} onClick={() => { setShowSource(value => !value); }}>{showSource ? 'Hide source' : 'Edit source'}</button>
+      <button type="button" aria-label={showSource ? 'Hide source' : 'Edit source'} title="Toggle TikZ source" aria-expanded={showSource} onClick={() => { setShowSource(value => !value); }}><EditorIcon name="code" /></button>
       <span role="status">{error ? 'Preview error — source retained' : snapshot.source !== source ? 'Rendering…' : 'Drag to move · double-click a label to edit'}</span>
-      <button type="button" className="compact-save" disabled={saving} onClick={() => { void save(); }}>{saving ? 'Saving…' : 'Save as note'}</button>
     </div>
     {showSource ? <div className="compact-source"><SourcePanel /></div> : null}
     {error ? <div className="compact-error" role="alert">{error}</div> : null}

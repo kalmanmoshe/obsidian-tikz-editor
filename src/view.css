@@ -6,3 +6,12 @@
   padding: 0 !important;
   overflow: hidden;
 }
+
+
+/* Hide the note visually while preserving its editor, scroll position, and tab. */
+.tikz-editor-pane-covered { position: relative; overflow: hidden !important; padding: 0 !important; }
+.tikz-editor-pane-covered > :not(.tikz-editor-pane-overlay) { display: none !important; }
+.tikz-editor-pane-overlay { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; background: var(--background-primary); }
+.tikz-editor-pane-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--background-modifier-border); }
+.tikz-editor-pane-bar [role="status"] { color: var(--text-muted); font-size: var(--font-ui-small); }
+.tikz-editor-pane-frame { position: relative; flex: 1; min-width: 0; min-height: 0; overflow: hidden; }

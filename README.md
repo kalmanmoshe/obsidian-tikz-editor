@@ -111,3 +111,13 @@ it does not run lezer-generator. Generated Lezer parser files are build outputs.
 integration changes neither grammars nor generated parsers. If a future editing
 feature requires a grammar change, edit its grammar and regenerate deliberately;
 avoid committing line-ending-only regeneration churn.
+
+### Edit a code block in its note pane
+
+Right-click inside a complete `tikz` fenced block and choose **Edit TikZ code block**.
+The drawing editor fills the current note's content area; the Markdown view, file, tab title,
+and note editor stay in place. Changes save into the selected block as you work. Select **Done**
+to return to the note. Ctrl/Cmd+S also saves the block without leaving the editor.
+Switching tabs keeps the editor in its original pane. Navigating that pane to another file
+or closing it cleans up the embedded editor. If conflicting note edits prevent saving,
+the editor reports the conflict; leaving preserves the working source in a separate recovery note.
