@@ -146,7 +146,8 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 				else if (!event.target.closest('.compact-toolbar')) lastSourceEditor.current = null;
 			}}
 		>
-			<div className="compact-toolbar" role="toolbar" aria-label="Drawing tools">
+			<div className="compact-workspace" data-canvas-fit-surface>
+			<div className="compact-toolbar" data-canvas-fit-obstacle role="toolbar" aria-label="Drawing tools">
 				<div className="compact-toolstrip">
 					{tools.map(tool => (
 						<button
@@ -217,12 +218,11 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 					<EditorIcon name="inspector" />
 				</button>
 			</div>
-			<div className="compact-workspace">
 				<div className="compact-canvas">
 					<CanvasPanel />
 				</div>
 				{showInspector ? (
-					<aside className="compact-inspector" aria-label="Inspector">
+					<aside className="compact-inspector" data-canvas-fit-obstacle aria-label="Inspector">
 						<div className="compact-panel-heading">
 							<span>Inspector</span>
 							<button
