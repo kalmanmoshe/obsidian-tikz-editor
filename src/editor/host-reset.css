@@ -1,10 +1,10 @@
 /* Reset host form-control chrome before upstream component rules apply.
    Match component-rule specificity so later upstream classes retain control. */
 .tikz-editor-root.tikz-editor-root :where(button, input, select, textarea) {
-  all: revert;
-  box-sizing: border-box;
+	all: revert;
+	box-sizing: border-box;
 }
-.tikz-editor-root.tikz-editor-root :where(input[type="checkbox"])::before,
-.tikz-editor-root.tikz-editor-root :where(input[type="checkbox"])::after {
-  content: none;
+.tikz-editor-root.tikz-editor-root :where(input[type='checkbox'])::before,
+.tikz-editor-root.tikz-editor-root :where(input[type='checkbox'])::after {
+	content: none;
 }

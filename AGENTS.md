@@ -129,6 +129,11 @@ Follow Obsidian's **Developer Policies** and **Plugin Guidelines**. In particula
 
 ## Coding conventions
 
+- Use real tabs for indentation, displayed at width 4, in new and edited plugin files.
+- Follow `.editorconfig` and `.prettierrc.json`; use consistent spacing, brackets, and readable multiline blocks. Keep formatting changes focused on the Obsidian plugin.
+- Do not reformat `vendor/tikz-editor`. Only edit upstream code when the task requires it, and keep any cleanup limited to code already changed for the integration.
+- Preserve behavior and existing user changes; avoid unrelated refactors and large diffs.
+
 - TypeScript with `"strict": true` preferred.
 - **Keep `main.ts` minimal**: Focus only on plugin lifecycle (onload, onunload, addCommand calls). Delegate all feature logic to separate modules.
 - **Split large files**: If any file exceeds ~200-300 lines, consider breaking it into smaller, focused modules.

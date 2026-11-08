@@ -3,32 +3,41 @@ import { mountCompactEditor, type CompactEditorHandle } from './editor/compact';
 import './view.css';
 
 export const VIEW_TYPE_TIKZ_EDITOR = 'tikz-editor-view';
+
 export class TikzEditorView extends ItemView {
 	private editor: CompactEditorHandle | null = null;
 	private savingNote = false;
 
 	constructor(
-		leaf: WorkspaceLeaf, 
+		leaf: WorkspaceLeaf,
 		private source: string | undefined,
-		private persist: (source: string) => void
-	) { 
+		private persist: (source: string) => void,
+	) {
 		super(leaf);
-        this.addAction('save', 'Save diagram as note', () => {
-            if (!this.editor) return;
-            void this.saveNote(this.editor.getSource()).catch((error: unknown) => {
-                new Notice(error instanceof Error ? error.message : String(error));
-            });
-        }); 
+		this.addAction('save', 'Save diagram as note', () => {
+			if (!this.editor) return;
+			void this.saveNote(this.editor.getSource()).catch((error: unknown) => {
+				new Notice(error instanceof Error ? error.message : String(error));
+			});
+		});
 	}
 
-	getViewType(): string { return VIEW_TYPE_TIKZ_EDITOR; }
-	getDisplayText(): string { return 'Diagram editor'; }
-	getIcon(): string { return 'shapes'; }
+	getViewType(): string {
+		return VIEW_TYPE_TIKZ_EDITOR;
+	}
+	getDisplayText(): string {
+		return 'Diagram editor';
+	}
+	getIcon(): string {
+		return 'shapes';
+	}
 
 	onOpen(): Promise<void> {
-		this.registerEvent(this.app.workspace.on('css-change', () => {
-			this.editor?.setTheme(this.contentEl.ownerDocument.body.hasClass('theme-dark'));
-		}));
+		this.registerEvent(
+			this.app.workspace.on('css-change', () => {
+				this.editor?.setTheme(this.contentEl.ownerDocument.body.hasClass('theme-dark'));
+			}),
+		);
 		this.resumeEditor();
 		return Promise.resolve();
 	}
@@ -40,9 +49,16 @@ export class TikzEditorView extends ItemView {
 		try {
 			const host = this.contentEl.createDiv({ cls: 'tikz-editor-root' });
 			this.editor = mountCompactEditor(host, {
-				...(this.source === undefined ? {} : { source: this.source }), dark: this.contentEl.ownerDocument.body.hasClass('theme-dark'),
-				onChange: source => { this.source = source; this.persist(source); },
-				onSave: source => this.saveNote(source), onError: message => { new Notice(message); },
+				...(this.source === undefined ? {} : { source: this.source }),
+				dark: this.contentEl.ownerDocument.body.hasClass('theme-dark'),
+				onChange: source => {
+					this.source = source;
+					this.persist(source);
+				},
+				onSave: source => this.saveNote(source),
+				onError: message => {
+					new Notice(message);
+				},
 			});
 		} catch (cause) {
 			const message = cause instanceof Error ? cause.message : String(cause);
@@ -54,19 +70,26 @@ export class TikzEditorView extends ItemView {
 	private async saveNote(source: string): Promise<void> {
 		if (this.savingNote) return;
 		this.savingNote = true;
+
 		try {
-		const stem = `TikZ diagram ${Date.now()}`;
-		let path = `${stem}.md`, index = 1;
-		while (this.app.vault.getAbstractFileByPath(path)) path = `${stem} ${index++}.md`;
-		const longest = Math.max(0, ...(source.match(/`+/g) ?? []).map(run => run.length));
-		const fence = '`'.repeat(Math.max(3, longest + 1));
-		const file = await this.app.vault.create(path, `${fence}tikz\n${source}\n${fence}\n`);
-		new Notice(`Diagram saved to ${file.path}`);
-		} finally { this.savingNote = false; }
+			const stem = `TikZ diagram ${Date.now()}`;
+			let path = `${stem}.md`,
+				index = 1;
+			while (this.app.vault.getAbstractFileByPath(path)) path = `${stem} ${index++}.md`;
+
+			const longest = Math.max(0, ...(source.match(/`+/g) ?? []).map(run => run.length));
+			const fence = '`'.repeat(Math.max(3, longest + 1));
+			const file = await this.app.vault.create(path, `${fence}tikz\n${source}\n${fence}\n`);
+
+			new Notice(`Diagram saved to ${file.path}`);
+		} finally {
+			this.savingNote = false;
+		}
 	}
 
 	disposeEditor(): void {
-		this.editor?.dispose(); this.editor = null;
+		this.editor?.dispose();
+		this.editor = null;
 		this.contentEl.empty();
 	}
 
