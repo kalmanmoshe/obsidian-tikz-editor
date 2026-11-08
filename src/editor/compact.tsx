@@ -122,14 +122,19 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 		};
 	});
 
-	const tools: { label: string; mode: ToolMode; icon: EditorIconName }[] = [
+	const tools: { label: string; tooltip?: string; mode: ToolMode; icon: EditorIconName }[] = [
 		{ label: 'Select', mode: 'select', icon: 'select' },
 		{ label: 'Node', mode: 'addNode', icon: 'node' },
-		{ label: 'Line / path', mode: 'addLine', icon: 'line' },
+		{ label: 'Line / path', 
+			tooltip: 'Line / path: drag for a line; click to add path points. Enter, Esc or double-click to finish.', mode: 'addLine', icon: 'line' 
+		},
 		{ label: 'Arrow', mode: 'addArrow', icon: 'arrow' },
 		{ label: 'Rectangle', mode: 'addRect', icon: 'rectangle' },
 		{ label: 'Circle', mode: 'addCircle', icon: 'circle' },
-		{ label: 'Free hand', mode: 'addFreehand', icon: 'freehand' },
+		{ label: 'Free hand',
+			tooltip: 'Free hand: draw and hold still to recognize shapes.', 
+			mode: 'addFreehand', icon: 'freehand' 
+		},
 	];
 
 	return (
@@ -148,7 +153,7 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 							type="button"
 							key={tool.mode}
 							aria-label={tool.label}
-							title={tool.mode === 'addLine' || tool.mode === 'addPath' ? 'Line / path: drag for a line; click to add path points. Enter, Esc or double-click to finish.' : tool.label}
+							title={tool.tooltip ?? tool.label}
 							aria-pressed={mode === tool.mode || (tool.mode === 'addLine' && mode === 'addPath')}
 							onClick={() => {
 								lastSourceEditor.current = null;
