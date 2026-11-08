@@ -125,6 +125,7 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 	const tools: { label: string; mode: ToolMode; icon: EditorIconName }[] = [
 		{ label: 'Select', mode: 'select', icon: 'select' },
 		{ label: 'Node', mode: 'addNode', icon: 'node' },
+		{ label: 'Line / path', mode: 'addLine', icon: 'line' },
 		{ label: 'Arrow', mode: 'addArrow', icon: 'arrow' },
 		{ label: 'Rectangle', mode: 'addRect', icon: 'rectangle' },
 		{ label: 'Circle', mode: 'addCircle', icon: 'circle' },
@@ -147,8 +148,8 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 							type="button"
 							key={tool.mode}
 							aria-label={tool.label}
-							title={tool.label}
-							aria-pressed={mode === tool.mode}
+							title={tool.mode === 'addLine' || tool.mode === 'addPath' ? 'Line / path: drag for a line; click to add path points. Enter, Esc or double-click to finish.' : tool.label}
+							aria-pressed={mode === tool.mode || (tool.mode === 'addLine' && mode === 'addPath')}
 							onClick={() => {
 								lastSourceEditor.current = null;
 								dispatch({ type: 'SET_TOOL_MODE', mode: tool.mode });

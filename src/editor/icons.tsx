@@ -1,6 +1,7 @@
 export type EditorIconName =
 	| 'select'
 	| 'node'
+	| 'line'
 	| 'arrow'
 	| 'rectangle'
 	| 'circle'
@@ -14,6 +15,7 @@ export type EditorIconName =
 const paths: Record<EditorIconName, string> = {
 	select: 'M5 3l14 9-7 1-3 7-4-17Z',
 	node: 'M4 5h16v14H4z M8 9h8 M12 9v6',
+	line: 'M4 20 10 6 20 12',
 	arrow: 'M4 20 20 4 M9 4h11v11',
 	rectangle: 'M4 5h16v14H4z',
 	circle: 'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
