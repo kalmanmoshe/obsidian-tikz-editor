@@ -305,6 +305,8 @@ export function mountCompactEditor(host: HTMLElement, options: CompactEditorOpti
 
 	const setTheme = (dark: boolean) => {
 		host.dataset.colorScheme = dark ? 'dark' : 'light';
+		// Apply the renderer's display-only inversion to the paper and SVG artwork.
+		host.toggleAttribute('data-canvas-invert', dark);
 		overlays.dataset.colorScheme = host.dataset.colorScheme;
 	};
 	setTheme(options.dark);
