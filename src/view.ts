@@ -1,5 +1,5 @@
 import { ItemView, Notice, type WorkspaceLeaf } from 'obsidian';
-import { mountCompactEditor, type CompactEditorHandle } from './editor/compact';
+import { mountCompactEditor, type CompactEditorHandle } from './editor/isolated';
 import './view.css';
 
 export const VIEW_TYPE_TIKZ_EDITOR = 'tikz-editor-view';

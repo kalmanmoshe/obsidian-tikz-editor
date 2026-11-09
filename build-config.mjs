@@ -1,3 +1,4 @@
+import { build as bundleEditor } from 'esbuild';
 import path from 'node:path';
 
 /** Shared production/test bundling: all editor code stays inside its entry bundle. */
@@ -45,6 +46,26 @@ export function createBuildOptions({ entry = 'src/main.ts', outfile = 'main.js',
 			'.png': 'dataurl',
 		},
 		plugins: [
+			{
+				name: 'isolated-editor-runtime',
+				setup(build) {
+					let editorCss = '';
+					build.onResolve({ filter: /^virtual:isolated-editor$/ }, () => ({ path: 'runtime', namespace: 'isolated-editor' }));
+					build.onResolve({ filter: /^virtual:isolated-editor-css$/ }, () => ({ path: 'styles', namespace: 'isolated-editor-css' }));
+					build.onLoad({ filter: /.*/, namespace: 'isolated-editor' }, async () => {
+						const result = await bundleEditor(createBuildOptions({ entry: 'src/editor/compact.tsx', outfile: 'editor-runtime.js', production }));
+						const js = result.outputFiles.find(file => file.path.endsWith('.js')).text;
+						editorCss = result.outputFiles.find(file => file.path.endsWith('.css')).text;
+						return { contents: `import 'virtual:isolated-editor-css';
+export function createEditorRuntime() {
+const module = { exports: {} }; const exports = module.exports;
+${js}
+return module.exports;
+}`, loader: 'js' };
+					});
+					build.onLoad({ filter: /.*/, namespace: 'isolated-editor-css' }, () => ({ contents: editorCss, loader: 'css' }));
+				},
+			},
 			{
 				name: 'compact-optional-features',
 				setup(build) {

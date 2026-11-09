@@ -121,3 +121,11 @@ to return to the note. Ctrl/Cmd+S also saves the block without leaving the edito
 Switching tabs keeps the editor in its original pane. Navigating that pane to another file
 or closing it cleans up the embedded editor. If conflicting note edits prevent saving,
 the editor reports the conflict; leaving preserves the working source in a separate recovery note.
+
+
+### Multiple TikZ editors
+
+Open notes in separate tabs or split panes, then choose **Edit TikZ code block** in each note.
+Each note pane keeps its own drawing editor open; changes save to its selected block.
+Selecting **Done** closes only that editor. One block can be edited per note pane.
+Each mounted editor owns an isolated engine runtime, including its store, history and popup host.

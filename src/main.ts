@@ -9,7 +9,7 @@ interface DraftData {
 }
 
 export default class TikzEditorPlugin extends Plugin {
-	private fencePane: CodeBlockEditorPane | null = null;
+	private fencePanes = new Map<MarkdownView, CodeBlockEditorPane>();
 	private draft: DraftData = {};
 	private writes: Promise<void> = Promise.resolve();
 	private timer: number | null = null;
@@ -73,9 +73,11 @@ export default class TikzEditorPlugin extends Plugin {
 					item.setTitle('Edit TikZ code block')
 						.setIcon('code')
 						.onClick(() => {
-							this.fencePane?.close();
-							this.fencePane = new CodeBlockEditorPane(this, context, info);
-							this.fencePane.load();
+							this.fencePanes.get(info)?.close();
+							const pane = new CodeBlockEditorPane(this, context, info);
+							this.fencePanes.set(info, pane);
+							pane.register(() => { if (this.fencePanes.get(info) === pane) this.fencePanes.delete(info); });
+							pane.load();
 						});
 				});
 			}),
@@ -91,8 +93,8 @@ export default class TikzEditorPlugin extends Plugin {
 	}
 
 	onunload(): void {
-		this.fencePane?.close();
-		this.fencePane = null;
+		for (const pane of this.fencePanes.values()) pane.close();
+		this.fencePanes.clear();
 		for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_TIKZ_EDITOR)) {
 			if (leaf.view instanceof TikzEditorView) leaf.view.disposeEditor();
 		}

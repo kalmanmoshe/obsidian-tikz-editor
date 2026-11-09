@@ -1,14 +1,12 @@
 import { Component, Notice, type MarkdownView, type TFile } from 'obsidian';
 import type TikzEditorPlugin from '../main';
-import { mountCompactEditor, type CompactEditorHandle } from '../editor/compact';
-import { TikzEditorView, VIEW_TYPE_TIKZ_EDITOR } from '../view';
+import { mountCompactEditor, type CompactEditorHandle } from '../editor/isolated';
 import { FenceEditContext } from './fenceEditContext';
 
 /** Owns an overlay in the existing Markdown view; never changes its leaf or view state. */
 export class CodeBlockEditorPane extends Component {
 	private editor: CompactEditorHandle | null = null;
 	private overlay: HTMLElement | null = null;
-	private suspended: TikzEditorView[] = [];
 	private source = '';
 	private savedSource = '';
 	private closed = false;
@@ -47,13 +45,6 @@ export class CodeBlockEditorPane extends Component {
 		const frame = this.overlay.createDiv({ cls: 'tikz-editor-pane-frame' });
 		const host = frame.createDiv({ cls: 'tikz-editor-root' });
 		try {
-			// The upstream store allows one session; retain existing diagram pane drafts.
-			for (const leaf of this.plugin.app.workspace.getLeavesOfType(VIEW_TYPE_TIKZ_EDITOR)) {
-				if (leaf.view instanceof TikzEditorView) {
-					this.suspended.push(leaf.view);
-					leaf.view.disposeEditor();
-				}
-			}
 			this.editor = mountCompactEditor(host, {
 				source: data.content,
 				dark: content.ownerDocument.body.hasClass('theme-dark'),
@@ -122,11 +113,6 @@ export class CodeBlockEditorPane extends Component {
 		this.overlay?.remove();
 		this.overlay = null;
 		this.view.contentEl.removeClass('tikz-editor-pane-covered');
-		const open = this.plugin.app.workspace.getLeavesOfType(VIEW_TYPE_TIKZ_EDITOR);
-		for (const view of this.suspended) {
-			if (open.some(leaf => leaf.view === view)) view.resumeEditor();
-		}
-		this.suspended = [];
 		if (source !== this.savedSource) void this.recover(source);
 	}
 
