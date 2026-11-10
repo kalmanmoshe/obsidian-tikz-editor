@@ -1,5 +1,6 @@
 import { ItemView, Notice, type WorkspaceLeaf } from 'obsidian';
 import { mountCompactEditor, type CompactEditorHandle } from './editor/isolated';
+import type { EditorPreferences } from './editor/preferences';
 import './view.css';
 
 export const VIEW_TYPE_TIKZ_EDITOR = 'tikz-editor-view';
@@ -12,6 +13,7 @@ export class TikzEditorView extends ItemView {
 		leaf: WorkspaceLeaf,
 		private source: string | undefined,
 		private persist: (source: string) => void,
+		private preferences: EditorPreferences,
 	) {
 		super(leaf);
 		this.addAction('save', 'Save diagram as note', () => {
@@ -51,6 +53,7 @@ export class TikzEditorView extends ItemView {
 			this.editor = mountCompactEditor(host, {
 				...(this.source === undefined ? {} : { source: this.source }),
 				dark: this.contentEl.ownerDocument.body.hasClass('theme-dark'),
+				preferences: this.preferences,
 				onChange: source => {
 					this.source = source;
 					this.persist(source);

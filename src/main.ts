@@ -2,6 +2,7 @@ import { Plugin, Notice, MarkdownView } from 'obsidian';
 import { TikzEditorView, VIEW_TYPE_TIKZ_EDITOR } from './view';
 import { CodeBlockEditorPane } from './codeBlockEditor/pane';
 import { FenceEditContext } from './codeBlockEditor/fenceEditContext';
+import { EditorPreferences } from './editor/preferences';
 
 interface DraftData {
 	source?: string;
@@ -11,25 +12,30 @@ interface DraftData {
 export default class TikzEditorPlugin extends Plugin {
 	private fencePanes = new Map<MarkdownView, CodeBlockEditorPane>();
 	private draft: DraftData = {};
+	private preferences!: EditorPreferences;
 	private writes: Promise<void> = Promise.resolve();
 	private timer: number | null = null;
 
 	async onload(): Promise<void> {
 		const data: unknown = await this.loadData();
+		let savedPreferences: unknown;
 
 		if (data && typeof data === 'object') {
-			const record = data as Record<string, unknown>;
-			this.draft =
-				typeof record.source === 'string' ? { ...record, source: record.source } : { legacyDiagram: data };
+			const { source, editorPreferences, ...rest } = data as Record<string, unknown>;
+			savedPreferences = editorPreferences;
+			if (typeof source === 'string') {
+				this.draft = { ...rest, source };
+			} else if ('editorPreferences' in data || 'legacyDiagram' in data) {
+				this.draft = rest;
+			} else {
+				this.draft = { legacyDiagram: data };
+			}
 		}
 
+		this.preferences = new EditorPreferences(savedPreferences, () => this.scheduleSave());
 		const saveDraft = (source: string): void => {
 			this.draft.source = source;
-			if (this.timer) window.clearTimeout(this.timer);
-			this.timer = window.setTimeout(() => {
-				this.timer = null;
-				this.flushDraft();
-			}, 350);
+			this.scheduleSave();
 		};
 
 		this.register(() => {
@@ -37,7 +43,10 @@ export default class TikzEditorPlugin extends Plugin {
 			this.flushDraft();
 		});
 
-		this.registerView(VIEW_TYPE_TIKZ_EDITOR, leaf => new TikzEditorView(leaf, this.draft.source, saveDraft));
+		this.registerView(
+			VIEW_TYPE_TIKZ_EDITOR,
+			leaf => new TikzEditorView(leaf, this.draft.source, saveDraft, this.preferences),
+		);
 
 		this.addCommand({
 			id: 'open-editor',
@@ -74,7 +83,7 @@ export default class TikzEditorPlugin extends Plugin {
 						.setIcon('code')
 						.onClick(() => {
 							this.fencePanes.get(info)?.close();
-							const pane = new CodeBlockEditorPane(this, context, info);
+							const pane = new CodeBlockEditorPane(this, context, info, this.preferences);
 							this.fencePanes.set(info, pane);
 							pane.register(() => { if (this.fencePanes.get(info) === pane) this.fencePanes.delete(info); });
 							pane.load();
@@ -84,11 +93,19 @@ export default class TikzEditorPlugin extends Plugin {
 		);
 	}
 
+	private scheduleSave(): void {
+		if (this.timer) window.clearTimeout(this.timer);
+		this.timer = window.setTimeout(() => {
+			this.timer = null;
+			this.flushDraft();
+		}, 350);
+	}
+
 	private flushDraft(): void {
-		const data = { ...this.draft };
+		const data = { ...this.draft, editorPreferences: this.preferences.get() };
 		this.writes = this.writes.catch(() => {}).then(() => this.saveData(data));
 		void this.writes.catch(() => {
-			new Notice('Could not save the diagram draft. Save it as a note before closing.');
+			new Notice('Could not save the TikZ editor draft and preferences.');
 		});
 	}
 

@@ -15,6 +15,8 @@ import {
 	type ToolMode,
 	type SourceEditorHistory,
 } from '@tikz-editor/app/embedding';
+import type { CanvasPreferences } from '@tikz-editor/app/store/types';
+import type { EditorPreferences } from './preferences';
 import './host-reset.css';
 import '@tikz-editor/app/embedding/styles.css';
 import './compact.css';
@@ -29,6 +31,7 @@ export const DEFAULT_COMPACT_SOURCE = String.raw`\begin{tikzpicture}
 export interface CompactEditorOptions {
 	source?: string;
 	dark: boolean;
+	preferences: EditorPreferences;
 	onChange: (source: string) => void;
 	onSave: (source: string) => Promise<void>;
 	onError: (message: string) => void;
@@ -298,10 +301,11 @@ export function mountCompactEditor(host: HTMLElement, options: CompactEditorOpti
 		},
 	});
 
+	const applyPreferences = (preferences: CanvasPreferences) => {
+		useEditorStore.getState().dispatch({ type: 'SET_CANVAS_VIEW_PREFERENCES', preferences });
+	};
+	applyPreferences(options.preferences.get());
 	host.ownerDocument.body.appendChild(overlays);
-	if (useEditorStore.getState().showRulers) {
-		useEditorStore.getState().dispatch({ type: 'TOGGLE_CANVAS_AID', aid: 'rulers' });
-	}
 
 	const setTheme = (dark: boolean) => {
 		host.dataset.colorScheme = dark ? 'dark' : 'light';
@@ -315,6 +319,10 @@ export function mountCompactEditor(host: HTMLElement, options: CompactEditorOpti
 	flushSync(() => {
 		root.render(<CompactEditor host={host} options={options} />);
 	});
+	const stopApplyingPreferences = options.preferences.subscribe(applyPreferences);
+	const stopPublishingPreferences = useEditorStore.subscribe((next, previous) => {
+		options.preferences.updateFromEditor(next, previous, applyPreferences);
+	});
 	let disposed = false;
 
 	return {
@@ -323,6 +331,8 @@ export function mountCompactEditor(host: HTMLElement, options: CompactEditorOpti
 		dispose: () => {
 			if (disposed) return;
 			disposed = true;
+			stopPublishingPreferences();
+			stopApplyingPreferences();
 
 			options.onChange(useEditorStore.getState().source);
 

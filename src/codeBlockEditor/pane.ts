@@ -1,6 +1,7 @@
 import { Component, Notice, type MarkdownView, type TFile } from 'obsidian';
 import type TikzEditorPlugin from '../main';
 import { mountCompactEditor, type CompactEditorHandle } from '../editor/isolated';
+import type { EditorPreferences } from '../editor/preferences';
 import { FenceEditContext } from './fenceEditContext';
 
 /** Owns an overlay in the existing Markdown view; never changes its leaf or view state. */
@@ -17,6 +18,7 @@ export class CodeBlockEditorPane extends Component {
 		private plugin: TikzEditorPlugin,
 		private context: FenceEditContext,
 		private view: MarkdownView,
+		private preferences: EditorPreferences,
 	) {
 		super();
 		this.file = view.file;
@@ -48,6 +50,7 @@ export class CodeBlockEditorPane extends Component {
 			this.editor = mountCompactEditor(host, {
 				source: data.content,
 				dark: content.ownerDocument.body.hasClass('theme-dark'),
+				preferences: this.preferences,
 				onChange: source => {
 					if (this.closed) return;
 					this.source = source;
