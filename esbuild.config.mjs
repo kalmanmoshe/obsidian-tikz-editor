@@ -40,7 +40,7 @@ const context = await esbuild.context({
 					await writeFile('build/metafile.json', JSON.stringify(result.metafile));
 					await writeFile('main.js', javascript.contents);
 					console.log(
-						`main.js ${(javascript.contents.length / 1024).toFixed(1)} KB, styles.css ${(stylesheet.text.length / 1024).toFixed(1)} KB`,
+						`main.js ${(javascript.contents.length / 1024 / 1024).toFixed(2)} MB, styles.css ${(stylesheet.text.length / 1024 / 1024).toFixed(2)} MB, metafile.json ${(JSON.stringify(result.metafile).length / 1024).toFixed(1)} KB`,
 					);
 				});
 			},
