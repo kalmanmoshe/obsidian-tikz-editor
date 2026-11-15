@@ -64,7 +64,24 @@ export function createBuildOptions({ entry = 'src/main.ts', outfile = 'main.js',
 		metafile: true,
 		alias,
 		nodePaths: [path.join(upstream, 'node_modules')],
-		external: ['obsidian', 'electron', 'node:fs/promises', 'node:buffer', 'node:zlib'],
+		external: [
+			'obsidian',
+			'electron',
+			// Obsidian exposes these modules through the plugin loader. Keep the TikZ and TeX grammars bundled.
+			'@codemirror/autocomplete',
+			'@codemirror/commands',
+			'@codemirror/language',
+			'@codemirror/lint',
+			'@codemirror/search',
+			'@codemirror/state',
+			'@codemirror/view',
+			'@lezer/common',
+			'@lezer/highlight',
+			'@lezer/lr',
+			'node:fs/promises',
+			'node:buffer',
+			'node:zlib',
+		],
 		define: {
 			'process.env.NODE_ENV': JSON.stringify(production ? 'production' : 'development'),
 			'import.meta.env.DEV': 'false',
@@ -116,8 +133,8 @@ return module.exports;
 						if (path.basename(importer) === 'editor-command-runtime.ts')
 							return { path: 'standalone-exports', namespace: 'compact-optional' };
 					});
-					// Standalone file import and native PowerPoint clipboard reads need host APIs the plugin doesn't provide.
-					build.onResolve({ filter: /^(pptx2tikz|ipe2tikz)$/ }, ({ path }) => ({
+					// These converters require standalone file dialogs or native clipboard formats.
+					build.onResolve({ filter: /^(pptx2tikz|ipe2tikz|keynote-clipboard)$/ }, ({ path }) => ({
 						path,
 						namespace: 'compact-optional',
 					}));
@@ -143,6 +160,7 @@ return module.exports;
 							'standalone-exports': ['copySvgMarkup', 'exportPdfDownload', 'exportStandaloneLatexDownload'],
 							pptx2tikz: ['parse', 'convertSlidesToTikZ', 'parseClipboardGVML', 'convertSlideToTikZ'],
 							ipe2tikz: ['convertIpeToTikz'],
+							'keynote-clipboard': ['toTikzFromClipboard'],
 						}[feature];
 						const async = feature === 'pdf-disabled' || feature === 'standalone-exports' ? 'async ' : '';
 						return {
