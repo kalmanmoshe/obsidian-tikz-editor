@@ -32,7 +32,18 @@ export class CodeBlockEditorPane extends Component {
 		content.addClass('tikz-editor-pane-covered');
 		this.overlay = content.createDiv({ cls: 'tikz-editor-pane-overlay' });
 		const bar = this.overlay.createDiv({ cls: 'tikz-editor-pane-bar' });
-		this.status = bar.createSpan({ text: 'Changes save to this code block', attr: { role: 'status' } });
+		// Share the note's navigation row instead of reserving another row above the canvas.
+		const header = this.view.containerEl.querySelector<HTMLElement>(':scope > .view-header');
+		if (header) {
+			header.addClass('tikz-editor-pane-header');
+			header.insertBefore(bar, header.querySelector(':scope > .view-actions'));
+			this.register(() => {
+				bar.remove();
+				header.removeClass('tikz-editor-pane-header');
+			});
+		}
+		this.status = bar.createSpan({ attr: { role: 'status' } });
+		this.setStatus('Changes save to this code block');
 		const done = bar.createEl('button', { text: 'Done', cls: 'mod-cta' });
 		this.registerDomEvent(done, 'click', () => {
 			if (!this.editor) return;
@@ -90,11 +101,17 @@ export class CodeBlockEditorPane extends Component {
 		if (source === this.savedSource) return;
 		this.context.replaceFenceContent(source);
 		this.savedSource = source;
-		if (this.status) this.status.textContent = 'Saved to code block';
+		this.setStatus('Saved to code block');
 	}
 
 	private report(error: unknown): void {
-		if (this.status) this.status.textContent = error instanceof Error ? error.message : String(error);
+		this.setStatus(error instanceof Error ? error.message : String(error));
+	}
+
+	private setStatus(message: string): void {
+		if (!this.status) return;
+		this.status.textContent = message;
+		this.status.title = message;
 	}
 
 	close(): void {

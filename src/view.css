@@ -26,14 +26,40 @@
 }
 .tikz-editor-pane-bar {
 	display: flex;
+	flex-shrink: 0;
+	min-width: 0;
 	align-items: center;
 	justify-content: space-between;
-	gap: 12px;
-	padding: 8px 12px;
+	gap: 8px;
+	padding: 4px 8px;
 	border-bottom: 1px solid var(--background-modifier-border);
 }
+.tikz-editor-pane-header {
+	/* Keep Done accessible even when the normal note title bar is disabled. */
+	display: flex !important;
+}
+.tikz-editor-pane-header > .view-header-title-container {
+	display: none;
+}
+.tikz-editor-pane-header > .tikz-editor-pane-bar {
+	flex: 1;
+	align-self: stretch;
+	padding: 0 4px;
+	border-bottom: 0;
+}
 .tikz-editor-pane-bar [role='status'] {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
 	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.tikz-editor-pane-bar > button {
+	flex-shrink: 0;
+	height: 26px;
+	padding: 0 10px;
 	font-size: var(--font-ui-small);
 }
 .tikz-editor-pane-frame {
