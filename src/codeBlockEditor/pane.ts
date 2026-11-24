@@ -62,6 +62,7 @@ export class CodeBlockEditorPane extends Component {
 				source: data.content,
 				dark: content.ownerDocument.body.hasClass('theme-dark'),
 				preferences: this.preferences,
+				viewportKey: this.context.getViewportKey(),
 				onChange: source => {
 					if (this.closed) return;
 					this.source = source;

@@ -225,9 +225,11 @@
 /* Popups escape the pane's containing block and clipping. */
 .tikz-editor-root.tikz-editor-overlays {
 	position: fixed;
-	inset: 0;
-	width: 100%;
-	height: 100%;
+	/* Obsidian marks this layer no-drag even with pointer-events: none.
+	   Only the popup children should occupy space over the host window. */
+	inset: 0 auto auto 0;
+	width: 0;
+	height: 0;
 	pointer-events: none;
 	overflow: visible;
 	z-index: var(--layer-menu, 1000);

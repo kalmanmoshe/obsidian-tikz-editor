@@ -76,6 +76,11 @@ export class FenceEditContext {
 		};
 	}
 
+	getViewportKey(): string {
+		const index = parseNestedCodeBlocks(this.snapshot).findIndex(({ start }) => start === this.start);
+		return JSON.stringify(['code-block', this.file?.path, index]);
+	}
+
 	getEditor() {
 		return this.editor;
 	}

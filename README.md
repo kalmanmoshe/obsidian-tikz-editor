@@ -19,6 +19,8 @@ run **TikZ Editor: Open diagram editor**.
 - **Save as note** creates a new Markdown note at vault root containing the current
   TikZ in a fenced block. Ctrl+S in the pane invokes the same save.
 - The last source is saved as plugin draft data and restored on reopening.
+- Zoom and position are saved separately for the draft and each note code block.
+  With automatic fitting off, reopening restores the saved zoom and offsets.
 
 One editor pane is supported because upstream state and the active platform are
 currently module singletons. No full docking layout, document tab bar, assistant,

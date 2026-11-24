@@ -15,7 +15,7 @@ import {
 	type ToolMode,
 	type SourceEditorHistory,
 } from '@tikz-editor/app/embedding';
-import type { CanvasPreferences } from '@tikz-editor/app/store/types';
+import { bindEditorPreferences } from './persistence';
 import type { EditorPreferences } from './preferences';
 import './host-reset.css';
 import '@tikz-editor/app/embedding/styles.css';
@@ -32,6 +32,7 @@ export interface CompactEditorOptions {
 	source?: string;
 	dark: boolean;
 	preferences: EditorPreferences;
+	viewportKey?: string;
 	onChange: (source: string) => void;
 	onSave: (source: string) => Promise<void>;
 	onError: (message: string) => void;
@@ -301,10 +302,7 @@ export function mountCompactEditor(host: HTMLElement, options: CompactEditorOpti
 		},
 	});
 
-	const applyPreferences = (preferences: CanvasPreferences) => {
-		useEditorStore.getState().dispatch({ type: 'SET_CANVAS_VIEW_PREFERENCES', preferences });
-	};
-	applyPreferences(options.preferences.get());
+	const stopPreferences = bindEditorPreferences(options.preferences, options.viewportKey ?? 'draft');
 	host.ownerDocument.body.appendChild(overlays);
 
 	const setTheme = (dark: boolean) => {
@@ -319,10 +317,6 @@ export function mountCompactEditor(host: HTMLElement, options: CompactEditorOpti
 	flushSync(() => {
 		root.render(<CompactEditor host={host} options={options} />);
 	});
-	const stopApplyingPreferences = options.preferences.subscribe(applyPreferences);
-	const stopPublishingPreferences = useEditorStore.subscribe((next, previous) => {
-		options.preferences.updateFromEditor(next, previous, applyPreferences);
-	});
 	let disposed = false;
 
 	return {
@@ -331,8 +325,7 @@ export function mountCompactEditor(host: HTMLElement, options: CompactEditorOpti
 		dispose: () => {
 			if (disposed) return;
 			disposed = true;
-			stopPublishingPreferences();
-			stopApplyingPreferences();
+			stopPreferences();
 
 			options.onChange(useEditorStore.getState().source);
 
