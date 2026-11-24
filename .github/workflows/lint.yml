@@ -19,11 +19,14 @@ jobs:
             - uses: actions/checkout@v6
               with:
                   submodules: recursive
+                  fetch-depth: 0
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v6
               with:
                   node-version: ${{ matrix.node-version }}
                   cache: 'npm'
+            - name: Audit TikZ Editor fork changes
+              run: npm run fork:check
             - run: npm ci
             - name: Install TikZ Editor dependencies
               run: npm ci --ignore-scripts --prefix vendor/tikz-editor

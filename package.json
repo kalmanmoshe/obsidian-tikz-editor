@@ -10,7 +10,10 @@
     "version": "node version-bump.mjs && git add manifest.json versions.json",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "build:install": "npm run build && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install.ps1"
+    "build:install": "npm run build && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install.ps1",
+    "fork:check": "node vendor/tikz-editor/scripts/fork-delta.mjs check",
+    "fork:report": "node vendor/tikz-editor/scripts/fork-delta.mjs report",
+    "fork:export": "node vendor/tikz-editor/scripts/fork-delta.mjs export"
   },
   "keywords": [],
   "license": "0-BSD",

@@ -102,10 +102,17 @@ The previous standalone diagram draft, if present, is retained under
 
 ## Provenance
 
+The complete submodule delta and upstream sync procedure are documented in
+[`vendor/tikz-editor/fork/README.md`](vendor/tikz-editor/fork/README.md).
+`npm run fork:report` lists changes by feature; `npm run fork:check` verifies
+that every changed editor file is classified. `npm run fork:export --
+fork/exports/review` exports the full current delta as grouped Git patches under
+the submodule. See `ARCHITECTURE.md` for the plugin/submodule ownership boundary.
+
 The plugin retains the official `obsidianmd/obsidian-sample-plugin` tooling and
 0-BSD LICENSE. The separate `vendor/tikz-editor` submodule is
 `kalmanmoshe/tikz-editor`, forked from `DominikPeters/tikz-editor`, with upstream
-history and MIT attribution retained. Integration changes are local and uncommitted.
+history and MIT attribution retained.
 Commit changes in the submodule before updating the parent submodule pointer.
 
 The normal plugin build bundles upstream source and uses the committed parsers;
