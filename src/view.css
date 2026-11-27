@@ -35,7 +35,7 @@
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 .tikz-editor-pane-header {
-	/* Keep Done accessible even when the normal note title bar is disabled. */
+	/* Keep Confirm and Cancel accessible when the normal note title bar is disabled. */
 	display: flex !important;
 }
 .tikz-editor-pane-header > .view-header-title-container {

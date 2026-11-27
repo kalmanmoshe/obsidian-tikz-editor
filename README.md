@@ -125,16 +125,20 @@ avoid committing line-ending-only regeneration churn.
 
 Right-click inside a complete `tikz` fenced block and choose **Edit TikZ code block**.
 The drawing editor fills the current note's content area; the Markdown view, file, tab title,
-and note editor stay in place. Changes save into the selected block as you work. Select **Done**
-to return to the note. Ctrl/Cmd+S also saves the block without leaving the editor.
+and note editor stay in place. Changes stay in the drawing editor until you select **Confirm**
+or press Ctrl/Cmd+S to apply them and return to the note. **Cancel** discards the session's changes.
+Under **Settings → TikZ Editor**, enable **Live editing** to update the code block as you work.
+Live editing is off by default. The setting is remembered and takes effect in open editors.
+**Cancel** also undoes changes already applied during a live editing session.
 Switching tabs keeps the editor in its original pane. Navigating that pane to another file
-or closing it cleans up the embedded editor. If conflicting note edits prevent saving,
-the editor reports the conflict; leaving preserves the working source in a separate recovery note.
+or closing it cleans up the embedded editor. Unconfirmed changes are never applied on close when
+live editing is off; they are preserved in a recovery note unless you selected **Cancel**.
+If conflicting note edits prevent saving or cancelling, the editor reports the conflict and stays open.
 
 
 ### Multiple TikZ editors
 
 Open notes in separate tabs or split panes, then choose **Edit TikZ code block** in each note.
-Each note pane keeps its own drawing editor open; changes save to its selected block.
-Selecting **Done** closes only that editor. One block can be edited per note pane.
+Each note pane keeps its own drawing editor open; changes apply to its selected block according to
+the **Live editing** setting. **Confirm** or **Cancel** closes only that editor. One block can be edited per note pane.
 Each mounted editor owns an isolated engine runtime, including its store, history and popup host.

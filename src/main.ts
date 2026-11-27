@@ -3,6 +3,7 @@ import { TikzEditorView, VIEW_TYPE_TIKZ_EDITOR } from './view';
 import { CodeBlockEditorPane } from './codeBlockEditor/pane';
 import { FenceEditContext } from './codeBlockEditor/fenceEditContext';
 import { EditorPreferences } from './editor/preferences';
+import { readSettings, TikzEditorSettingTab, type TikzEditorSettings } from './settings';
 
 interface DraftData {
 	source?: string;
@@ -10,6 +11,7 @@ interface DraftData {
 }
 
 export default class TikzEditorPlugin extends Plugin {
+	settings: TikzEditorSettings = readSettings(undefined);
 	private fencePanes = new Map<MarkdownView, CodeBlockEditorPane>();
 	private draft: DraftData = {};
 	private preferences!: EditorPreferences;
@@ -21,11 +23,12 @@ export default class TikzEditorPlugin extends Plugin {
 		let savedPreferences: unknown;
 
 		if (data && typeof data === 'object') {
-			const { source, editorPreferences, ...rest } = data as Record<string, unknown>;
+			const { source, editorPreferences, settings, ...rest } = data as Record<string, unknown>;
 			savedPreferences = editorPreferences;
+			this.settings = readSettings(settings);
 			if (typeof source === 'string') {
 				this.draft = { ...rest, source };
-			} else if ('editorPreferences' in data || 'legacyDiagram' in data) {
+			} else if ('editorPreferences' in data || 'settings' in data || 'legacyDiagram' in data) {
 				this.draft = rest;
 			} else {
 				this.draft = { legacyDiagram: data };
@@ -33,6 +36,7 @@ export default class TikzEditorPlugin extends Plugin {
 		}
 
 		this.preferences = new EditorPreferences(savedPreferences, () => this.scheduleSave());
+		this.addSettingTab(new TikzEditorSettingTab(this));
 		const saveDraft = (source: string): void => {
 			this.draft.source = source;
 			this.scheduleSave();
@@ -93,6 +97,12 @@ export default class TikzEditorPlugin extends Plugin {
 		);
 	}
 
+	setLiveEditing(enabled: boolean): void {
+		this.settings = { ...this.settings, liveEditing: enabled };
+		this.scheduleSave();
+		for (const pane of this.fencePanes.values()) pane.setLiveEditing(enabled);
+	}
+
 	private scheduleSave(): void {
 		if (this.timer) window.clearTimeout(this.timer);
 		this.timer = window.setTimeout(() => {
@@ -102,10 +112,10 @@ export default class TikzEditorPlugin extends Plugin {
 	}
 
 	private flushDraft(): void {
-		const data = { ...this.draft, editorPreferences: this.preferences.get() };
+		const data = { ...this.draft, editorPreferences: this.preferences.get(), settings: this.settings };
 		this.writes = this.writes.catch(() => {}).then(() => this.saveData(data));
 		void this.writes.catch(() => {
-			new Notice('Could not save the TikZ editor draft and preferences.');
+			new Notice('Could not save the editor draft, settings, and preferences.');
 		});
 	}
 
