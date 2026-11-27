@@ -48,6 +48,7 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 	const source = useEditorStore(s => s.source);
 	const mode = useEditorStore(s => s.toolMode);
 	const snapshot = useEditorStore(s => s.snapshot);
+	const activeRootId = useEditorStore(s => s.activeRootId);
 	const selected = useEditorStore(s => s.selectedElementIds.size);
 	const dispatch = useEditorStore(s => s.dispatch);
 	const [showSource, setShowSource] = useState(false);
@@ -102,7 +103,7 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 		const onKey = (event: KeyboardEvent) => {
 			if (!editorOwnsEvent(event)) return;
 			const target = editorActiveElement();
-			const typing = target?.closest('input, textarea, [contenteditable="true"], .cm-editor');
+			const typing = target?.closest('input, select, textarea, [contenteditable="true"], .cm-editor');
 			if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
 				event.preventDefault();
 				event.stopPropagation();
@@ -264,6 +265,23 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 							? 'Rendering…'
 							: 'Drag to move · double-click a label to edit'}
 				</span>
+				{snapshot.figures.length > 1 && (
+					<select
+						className="compact-picture-select"
+						aria-label="TikZ picture"
+						value={activeRootId ?? snapshot.figures[0]?.id}
+						disabled={snapshot.source !== source}
+						onChange={event => {
+							dispatch({ type: 'SET_ACTIVE_ROOT', rootId: event.currentTarget.value });
+						}}
+					>
+						{snapshot.figures.map((figure, index) => (
+							<option key={figure.id} value={figure.id}>
+								Picture {index + 1} of {snapshot.figures.length}
+							</option>
+						))}
+					</select>
+				)}
 			</div>
 			{showSource ? (
 				<div className="compact-source">
