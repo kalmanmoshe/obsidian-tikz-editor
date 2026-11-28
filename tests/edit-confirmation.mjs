@@ -305,6 +305,7 @@ test('plugin setting tab saves the toggle, updates open panes, and retains draft
 	const { default: TikzEditorPlugin } = evaluate('src/main.ts', {
 		obsidian: { Plugin, Notice: class {}, MarkdownView: class {} },
 		'./view': { TikzEditorView: class {}, VIEW_TYPE_TIKZ_EDITOR: 'tikz-editor-view' },
+		'./texFiles': { registerTexFiles() {} },
 		'./codeBlockEditor/pane': { CodeBlockEditorPane: class {} },
 		'./codeBlockEditor/fenceEditContext': { FenceEditContext },
 		'./editor/preferences': { EditorPreferences },

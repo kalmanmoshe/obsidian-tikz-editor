@@ -33,6 +33,7 @@ export interface CompactEditorOptions {
 	dark: boolean;
 	preferences: EditorPreferences;
 	viewportKey?: string;
+	initialSourceVisible?: boolean;
 	onChange: (source: string) => void;
 	onSave: (source: string) => Promise<void>;
 	onError: (message: string) => void;
@@ -51,7 +52,7 @@ function CompactEditor({ host, options }: { host: HTMLElement; options: CompactE
 	const activeRootId = useEditorStore(s => s.activeRootId);
 	const selected = useEditorStore(s => s.selectedElementIds.size);
 	const dispatch = useEditorStore(s => s.dispatch);
-	const [showSource, setShowSource] = useState(false);
+	const [showSource, setShowSource] = useState(options.initialSourceVisible ?? false);
 	const [showInspector, setShowInspector] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const error = useEditorComputation(options.onError);

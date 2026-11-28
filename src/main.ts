@@ -1,5 +1,6 @@
 import { Plugin, Notice, MarkdownView } from 'obsidian';
 import { TikzEditorView, VIEW_TYPE_TIKZ_EDITOR } from './view';
+import { registerTexFiles } from './texFiles';
 import { CodeBlockEditorPane } from './codeBlockEditor/pane';
 import { FenceEditContext } from './codeBlockEditor/fenceEditContext';
 import { EditorPreferences } from './editor/preferences';
@@ -63,17 +64,7 @@ export default class TikzEditorPlugin extends Plugin {
 			},
 		});
 
-		this.registerEvent(
-			this.app.workspace.on('file-menu', (menu, file) => {
-				menu.addItem(item => {
-					item.setTitle('CREATE_CODE')
-						.setIcon('file-json')
-						.onClick(async () => {
-							//new CreateCodeFileModal(this, file).open();
-						});
-				});
-			}),
-		);
+		registerTexFiles(this, this.preferences);
 
 		this.registerEvent(
 			this.app.workspace.on('editor-menu', (menu, editor, info) => {
